@@ -472,3 +472,585 @@ HTTP/1.1 200 OK
 ```
 
 The request start line tells the server **what to do**, while the response start line tells the client **what happened**.
+
+# HTTP Methods: Idempotence
+
+## What is Idempotence?
+
+A request is **idempotent** if making the same request multiple times produces the **same final state** on the server.
+
+### Simple Definition
+
+> An operation is **idempotent** when repeating it does not change the outcome beyond the initial execution.
+
+Or put another way:
+
+```text
+Safe to repeat
+```
+
+---
+
+# Why Does Idempotence Matter?
+
+In distributed systems, things go wrong:
+
+- Network timeouts
+- Lost responses
+- Retries
+- Temporary connectivity issues
+
+A client may not know whether the server successfully processed a request.
+
+So it may send the same request again.
+
+```text
+Request
+   ↓
+Timeout Occurs
+   ↓
+Client Unsure
+   ↓
+Retry Request
+```
+
+If the operation is idempotent, retrying is safe.
+
+---
+
+# HTTP Methods and Idempotence
+
+| Method | Idempotent? | Safe to Repeat? |
+|----------|------------|----------------|
+| GET | ✅ Yes | Yes |
+| POST | ❌ No | No |
+| PUT | ✅ Yes | Yes |
+| DELETE | ✅ Yes | Yes |
+
+---
+
+# GET is Idempotent
+
+A GET request only retrieves information.
+
+Example:
+
+```http
+GET /users/101
+```
+
+Response:
+
+```json
+{
+  "id": 101,
+  "name": "Sushant"
+}
+```
+
+You can execute the request:
+
+```text
+1 time
+10 times
+100 times
+```
+
+The final state of the server never changes.
+
+```text
+No modification
+No new records
+No updates
+No deletion
+```
+
+Therefore:
+
+```text
+GET = Idempotent
+```
+
+---
+
+# PUT is Idempotent
+
+PUT replaces a resource with the supplied representation.
+
+Suppose user 101 currently has:
+
+```json
+{
+  "name": "John"
+}
+```
+
+Request:
+
+```http
+PUT /users/101
+```
+
+```json
+{
+  "name": "Sushant"
+}
+```
+
+---
+
+## First Execution
+
+Server state becomes:
+
+```json
+{
+  "name": "Sushant"
+}
+```
+
+---
+
+## Second Execution
+
+Exactly the same request:
+
+```http
+PUT /users/101
+```
+
+```json
+{
+  "name": "Sushant"
+}
+```
+
+Server state remains:
+
+```json
+{
+  "name": "Sushant"
+}
+```
+
+Nothing changes.
+
+---
+
+## Third Execution
+
+Same result.
+
+```text
+Final state remains unchanged
+```
+
+Therefore:
+
+```text
+PUT = Idempotent
+```
+
+---
+
+# DELETE is Idempotent
+
+Imagine:
+
+```http
+DELETE /users/101
+```
+
+---
+
+## First Execution
+
+User is removed.
+
+```text
+User exists → Deleted
+```
+
+---
+
+## Second Execution
+
+User already does not exist.
+
+```text
+Still deleted
+```
+
+---
+
+## Third Execution
+
+Nothing changes.
+
+The server may return:
+
+```http
+404 Not Found
+```
+
+but the important point is:
+
+```text
+The final state remains the same.
+```
+
+There is still no user.
+
+Therefore:
+
+```text
+DELETE = Idempotent
+```
+
+---
+
+# POST is NOT Idempotent
+
+POST usually creates new resources.
+
+Example:
+
+```http
+POST /orders
+```
+
+```json
+{
+  "product": "Laptop"
+}
+```
+
+---
+
+## First Execution
+
+Creates:
+
+```text
+Order #1001
+```
+
+---
+
+## Second Execution
+
+Creates:
+
+```text
+Order #1002
+```
+
+---
+
+## Third Execution
+
+Creates:
+
+```text
+Order #1003
+```
+
+---
+
+Result:
+
+```text
+More executions
+=
+More resources
+=
+Different server state
+```
+
+Therefore:
+
+```text
+POST = Not Idempotent
+```
+
+---
+
+# Visual Comparison
+
+## GET
+
+```text
+GET User
+     ↓
+User Data Returned
+
+GET User
+     ↓
+User Data Returned
+
+GET User
+     ↓
+User Data Returned
+```
+
+Server state:
+
+```text
+Unchanged
+```
+
+✅ Idempotent
+
+---
+
+## PUT
+
+```text
+Set Name = Sushant
+     ↓
+Updated
+
+Set Name = Sushant
+     ↓
+No Additional Change
+
+Set Name = Sushant
+     ↓
+No Additional Change
+```
+
+Server state:
+
+```text
+Same
+```
+
+✅ Idempotent
+
+---
+
+## DELETE
+
+```text
+Delete User
+     ↓
+Deleted
+
+Delete User
+     ↓
+Already Deleted
+
+Delete User
+     ↓
+Still Deleted
+```
+
+Server state:
+
+```text
+No User Exists
+```
+
+✅ Idempotent
+
+---
+
+## POST
+
+```text
+Create Order
+     ↓
+Order #1
+
+Create Order
+     ↓
+Order #2
+
+Create Order
+     ↓
+Order #3
+```
+
+Server state:
+
+```text
+Keeps changing
+```
+
+❌ Not Idempotent
+
+---
+
+# Common Interview Question
+
+## Does Idempotent Mean the Response Must Be Identical?
+
+**No.**
+
+A very common misconception is:
+
+```text
+Same Request
+=
+Same Response
+```
+
+This is NOT the definition of idempotence.
+
+The real definition is:
+
+```text
+Same Request
+=
+Same Final Server State
+```
+
+### Example
+
+```http
+DELETE /users/101
+```
+
+First response:
+
+```http
+200 OK
+```
+
+Second response:
+
+```http
+404 Not Found
+```
+
+Responses differ.
+
+But the server state is still:
+
+```text
+User does not exist
+```
+
+Therefore the operation remains idempotent.
+
+---
+
+# Idempotence vs Safe Methods
+
+These concepts are related but different.
+
+| Concept | Meaning |
+|----------|----------|
+| Safe | Does not modify server state |
+| Idempotent | Can be repeated without changing the final state |
+
+---
+
+## Safe Methods
+
+```text
+GET
+HEAD
+OPTIONS
+```
+
+These should not modify data.
+
+---
+
+## Idempotent Methods
+
+```text
+GET
+PUT
+DELETE
+```
+
+These may modify data, but repeating them leads to the same final state.
+
+Example:
+
+```text
+PUT changes data
+```
+
+Yet it is still idempotent.
+
+---
+
+# Mental Model
+
+Think of a light switch.
+
+### Idempotent
+
+```text
+Set Light = ON
+```
+
+Execute once:
+
+```text
+Light ON
+```
+
+Execute ten times:
+
+```text
+Light ON
+```
+
+Final state never changes.
+
+✅ Idempotent
+
+---
+
+### Non-Idempotent
+
+```text
+Increase Counter by 1
+```
+
+Execute once:
+
+```text
+Counter = 1
+```
+
+Execute again:
+
+```text
+Counter = 2
+```
+
+Execute again:
+
+```text
+Counter = 3
+```
+
+State keeps changing.
+
+❌ Not Idempotent
+
+---
+
+# Key Takeaway
+
+> **Idempotence means that repeating the same request produces the same final state on the server.**
+
+| Method | Idempotent? | Reason |
+|----------|-------------|---------|
+| GET | ✅ | Reads data only |
+| PUT | ✅ | Replaces resource with same value each time |
+| DELETE | ✅ | Resource remains deleted |
+| POST | ❌ | Usually creates additional resources |
+
+### Remember
+
+```text
+Idempotent ≠ Same Response
+
+Idempotent = Same Final Server State
+```
