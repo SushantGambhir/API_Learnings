@@ -31,9 +31,9 @@ For each API example, determine:
 
 | Difficulty | Example | Interface (I) | Program (P) | Application (A) |
 |------------|----------|---------------|-------------|-----------------|
-| Simple | Send a Viber message using a cell phone | Cell phone | Messaging | Viber |
-| Simple | Perform a Google search using a computer | Computer | Search | Google |
-| Moderate / Complex | Create orders in eBay automatically when orders are received (no browser involved) | eBay API | Create Order | eBay |
+| Simple | Send a Whatsapp message using a cell phone | Android / iPhone | Messaging | Whatsapp |
+| Simple | Perform a Google search using a computer | Windows / Mac / Linux Distro | Search | Google |
+| Moderate / Complex | Create orders in Amazon automatically when orders are received (no browser involved) | Amazon API | Create Order | Amazon |
 | Moderate / Complex | Create orders in SAP automatically when orders are received (no browser involved) | SAP API | Create Order | SAP |
 
 ---
@@ -63,7 +63,7 @@ Application → API → Program → Application
 
 Examples:
 
-- Order System → eBay API → Create Order → eBay
+- Order System → Amazon API → Create Order → Amazon
 - Order System → SAP API → Create Order → SAP
 
 ---
