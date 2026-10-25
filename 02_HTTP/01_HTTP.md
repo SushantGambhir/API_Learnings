@@ -59,6 +59,13 @@ Every HTTP communication involves two parties:
 
 ---
 
+# The Structures
+
+- 1. Start Line (Request Line for Request, Status line for response)
+- 2. Headers
+- 3. Blank Line
+- 4. Body
+
 ## Example: Google Search
 
 ```text
