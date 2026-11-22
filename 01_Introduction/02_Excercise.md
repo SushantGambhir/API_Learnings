@@ -31,8 +31,8 @@ For each API example, determine:
 
 | Difficulty | Example | Interface (I) | Program (P) | Application (A) |
 |------------|----------|---------------|-------------|-----------------|
-| Simple | Send a Whatsapp message using a cell phone | Android / iPhone | Messaging | Whatsapp |
-| Simple | Perform a Google search using a computer | Windows / Mac / Linux Distro | Search | Google |
+| Simple | Send a Whatsapp message using a cell phone | Android Phone / iPhone | Messaging | Whatsapp |
+| Simple | Perform a Google search using a computer | Windows / Mac / Linux Distro Browser | Search | Google |
 | Moderate / Complex | Create orders in Amazon automatically when orders are received (no browser involved) | Amazon API | Create Order | Amazon |
 | Moderate / Complex | Create orders in SAP automatically when orders are received (no browser involved) | SAP API | Create Order | SAP |
 
@@ -50,7 +50,7 @@ Person → Device → Application → Program
 
 Examples:
 
-- Cell Phone → Viber → Messaging
+- Cell Phone → Whatsapp → Messaging
 - Computer → Google → Search
 
 ### Moderate / Complex Examples
